@@ -3,6 +3,7 @@ const multer = require("multer");
 const fs = require("fs");
 const ffmpegStatic = require("ffmpeg-static");
 const ffmpeg = require("fluent-ffmpeg");
+const path = require("path");
 
 const app = express();
 app.use(express.json());
@@ -10,7 +11,7 @@ app.use(express.urlencoded({ extended: true, limit: "2gb" }));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./uploads");
+    cb(null, path.join(process.cwd(), "./uploads"));
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
