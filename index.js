@@ -20,6 +20,10 @@ const upload = multer({ storage: storage });
 
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
+app.get("/", (req, res) => {
+  res.send("Test compressor");
+});
+
 app.post("/upload", upload.single("video"), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
@@ -57,7 +61,6 @@ app.post("/process", (req, res) => {
       res.status(500).json({ error: "Failed to process video" });
     });
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
