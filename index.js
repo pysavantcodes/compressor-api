@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true, limit: "2gb" }));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(process.cwd(), "./uploads"));
+    cb(null, path.join(process.cwd(), "uploads"));
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
