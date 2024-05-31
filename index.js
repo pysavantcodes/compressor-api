@@ -14,7 +14,11 @@ const storage = multer.diskStorage({
     cb(null, "/tmp");
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
+    const originalName = file.originalname;
+    const timestamp = Date.now();
+    const extension = path.extname(originalName);
+    const fileName = `${timestamp}-upload${extension}`;
+    cb(null, fileName);
   },
 });
 const upload = multer({ storage: storage });
@@ -35,23 +39,24 @@ app.post("/upload", upload.single("video"), (req, res) => {
 
 app.post("/process", (req, res) => {
   const inputFileName = req.body.fileName;
+  const outputFileName = inputFileName.replace("upload", "export");
 
   ffmpeg()
-    .input(`./uploads/${inputFileName}`)
+    .input(`/tmp/${inputFileName}`)
     .videoCodec("libx264")
     .videoBitrate("1000k")
     .audioCodec("aac")
-    .saveToFile(`./exports/${inputFileName}`)
+    .saveToFile(`/tmp/${outputFileName}`)
     .on("end", () => {
-      res.download(`./exports/${inputFileName}`, inputFileName, (err) => {
+      res.download(`/tmp/${outputFileName}`, inputFileName, (err) => {
         if (err) {
           console.error("Download error:", err);
           res.status(500).json({ error: "Failed to send processed file" });
         } else {
-          fs.unlink(`./exports/${inputFileName}`, (err) => {
+          fs.unlink(`/tmp/${inputFileName}`, (err) => {
             if (err) console.error("Error deleting processed file:", err);
           });
-          fs.unlink(`./uploads/${inputFileName}`, (err) => {
+          fs.unlink(`/tmp/${outputFileName}`, (err) => {
             if (err) console.error("Error deleting uploaded file:", err);
           });
         }
